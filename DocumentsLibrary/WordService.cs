@@ -10,35 +10,27 @@ namespace DocumentsLibrary
 
         public void CreatePdf(string fileName, string subject, string body)
         {
-            try
+            _wordApp = new Application();
+            _wordApp.Visible = false;
+            _document = _wordApp.Documents.Add();
+
+            AddParagraph(subject, 1, _document);
+            AddParagraph("", 2, _document);
+            AddParagraph(body, 3, _document);
+
+            var titleRange = _document.Paragraphs[1].Range;
+            titleRange.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
+            titleRange.Font.Size = 16;
+            titleRange.Font.Bold = 1;
+
+            for (int i = 2; i < _document.Paragraphs.Count; i++)
             {
-                _wordApp = new Application();
-                _wordApp.Visible = false;
-                _document = _wordApp.Documents.Add();
-
-                AddParagraph(subject, 1, _document);
-                AddParagraph("", 2, _document);
-                AddParagraph(body, 3, _document);
-
-                var titleRange = _document.Paragraphs[1].Range;
-                titleRange.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphCenter;
-                titleRange.Font.Size = 16;
-                titleRange.Font.Bold = 1;
-
-                for (int i = 2; i < _document.Paragraphs.Count; i++)
-                {
-                    var range = _document.Paragraphs[i].Range;
-                    range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
-                    range.Font.Size = 12;
-                }
-
-                _document.SaveAs(fileName, WdSaveFormat.wdFormatPDF);
-                
+                var range = _document.Paragraphs[i].Range;
+                range.ParagraphFormat.Alignment = WdParagraphAlignment.wdAlignParagraphJustify;
+                range.Font.Size = 12;
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            _document.SaveAs(fileName, WdSaveFormat.wdFormatPDF);
         }
 
         private static void AddParagraph(string text, int number, Document document)
@@ -53,7 +45,7 @@ namespace DocumentsLibrary
             if (_document != null)
             {
                 _document.Close(false);
-                
+
                 Marshal.ReleaseComObject(_document);
                 _document = null;
             }
